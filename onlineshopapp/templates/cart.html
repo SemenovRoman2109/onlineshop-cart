@@ -27,36 +27,53 @@
     {% endfor %}
     <h1 class="all-price">Загальна цiна: 0</h1>
 
+    <!-- Импортируем jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.4.js" integrity="sha256-a9jBBRygX1Bh5lt8GZjXDzyOB+bWve9EiO7tROUtj/E=" crossorigin="anonymous"></script>
 
     <script>
+        // Создаем списки для обектов кнопоук плюса минуса и удаления в каждом продукте 
         let listPlusObject = document.querySelectorAll(".plus");
         let listMinusObject = document.querySelectorAll(".minus");
         let listDeleteButton = document.querySelectorAll(".delete")
-        
+        // Создаем функцию для подщета общей цены заказ
         function calculatingAmount (){
+            //Создаем список всех дивов с продуктами
             let listDivProduct = document.querySelectorAll(".product");
+            //Создаем переменную в которой будет сумарная стоисоть всех продуктов
             let sumPriceProduct = 0;
+            //Перебираем список дивов
             listDivProduct.forEach(function(divProduct, id, listDivProduct) {
+                // Создаем переменную в которой храниться данные цены и количества(ищем ети данные в нужном нам обекте при переборе списка)
                 let countTextObj = divProduct.querySelector(".count");
-                let priceTextObj = divProduct.querySelector(".price");
+                let priceTextObj = divProduct.querySelector(".price"); // Цена: 8
+                // Перезаписуем значение переменных разделяя их текст по пробелу и сохраняя все после него И изменяем тип данных на число
                 countTextObj = parseInt(countTextObj.textContent.split(" ")[1]);
                 priceTextObj = parseInt(priceTextObj.textContent.split(" ")[1]);
+                // Создаем переменную котоая равняеться произведению цены и количества
                 let priceProduct = priceTextObj * countTextObj;
+                // Добавляем к общей суме суму етого товара
                 sumPriceProduct += priceProduct;
             })
+            // Создаем переменную в которой получаем обект в котором храниьтся цена 
             let allPrice = document.querySelector(".all-price");
+            // Заменяем текст етой переменной на "Загальна цiна: " и добавляем суму наших заказов в виде строки
             allPrice.textContent = "Загальна цiна: " + String(sumPriceProduct)
         }
-
+        // Перебераем список обектов кнопки плюс
         listPlusObject.forEach(function(plusObject, id, listPlusObject) {
+            //На кнопкку плюса добавляем событие нажатия 
             plusObject.addEventListener("click",function(event){
+                // Создаем переменную в которой храниться имя второго класа обекта нашей кнопки
                 let classPlus = plusObject.className.split(" ")[1];
+                // Создаем переменную в которой храниться обект текста(его мы получили по id который совпадает с класом нашей кнопки)
                 let objText = document.querySelector(`#${classPlus}`);
+                // Заменяем текст етой переменной на `Количество: ` и к старому полученому нами рание количеству добавляем 1 
                 objText.textContent = `Количество: ${parseInt(objText.textContent.split(" ")[1]) + 1}`
+                // Вызываем функцию подсчета общей цены
                 calculatingAmount()
         });
         })
+        // Делаем тожже что и с плюсом но вместо того чтоб добавить 1 к строимости убавляем
         listMinusObject.forEach(function(minusObject, id, listMinusObject) {
             minusObject.addEventListener("click",function(event){
                 let classMinus = minusObject.className.split(" ")[1];
@@ -65,7 +82,7 @@
                 calculatingAmount()
         });
         })
-
+        //Делаем тожже что и с плюсом но вместо того чтоб добавить 1 к строимости мы приравниваем её к нулю
         listDeleteButton.forEach(function(deleteObject, id, listDeleteButton) {
             deleteObject.addEventListener("click",function(event){
                 let classDelete = deleteObject.className.split(" ")[1];
@@ -75,23 +92,34 @@
         });
         })
 
+        // Если страница загружена вызываем функцию подсчета общей стоимости
         document.addEventListener("DOMContentLoaded",calculatingAmount())
         
-
+        // Если страница загружена
         $(document).ready(function(){
+            // Если форма отправленна
             $(".del-form-cart").on("submit", function(event){
+                // Отменяем действия браузера по умолчанию(отправка формы)
                 event.preventDefault();
+                // В  етой форме ищем параграф с количеством продукта
                 textObj = event.currentTarget.querySelector(".count")
+                // Выделяем из него число 
                 textObj = parseInt(textObj.textContent.split(" ")[1]);
+                // Ищем ближайшего родителя тег div для нашей формы
                 let parentDiv = $(this).closest('div');
-                var formData = $(this).serializeArray();
+                // Подготавливаем данные для отправки
+                let formData = $(this).serializeArray();
+                // Добаляем в данные которые мы будем отправлять количество нашего продукта под ключем count
                 formData.push({name: "count", value: $(this).find(".count").text()});
+                // Отправляем ajax запрос
                 $.ajax({
                     type: "POST", 
                     url: $(this).action,
                     data: formData,
                     success: function() {
+                        // Если количество продукта равно 0(он закончился)
                         if (textObj == 0){
+                            // удаляем родительский див
                             parentDiv.remove(); 
                         }
                     }           
