@@ -1,0 +1,83 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>cart</title>
+</head>
+<body>
+    <h1>Ваш кошик</h1>
+    {% for product in products %}
+        <div>
+            <hr>
+            <p> {{ product.0.name }}</p>
+            <p>Цена: {{ product.0.price }}</p>
+            
+            
+            <form method="POST" class="del-form-cart" action="{% url 'cart' %}">
+                {% csrf_token %}
+                <p id="{{ product.0.name }}" class="count" >Количество: {{ product.1 }} </p>
+                <button class="plus {{ product.0.name }}">+</button>
+                <button class="minus {{ product.0.name }}">-</button>
+                <input type="hidden" name="product_pk" value="{{ product.0.pk}}">
+                <button class="delete {{ product.0.name }}"> Видалити з кошика</button>
+            </form>
+            
+        </div>
+    {% endfor %}
+
+    <script src="https://code.jquery.com/jquery-3.6.4.js" integrity="sha256-a9jBBRygX1Bh5lt8GZjXDzyOB+bWve9EiO7tROUtj/E=" crossorigin="anonymous"></script>
+
+    <script>
+        let listPlusObject = document.querySelectorAll(".plus");
+        let listMinusObject = document.querySelectorAll(".minus");
+        let listDeleteButton = document.querySelectorAll(".delete")
+        
+        listPlusObject.forEach(function(plusObject, id, listPlusObject) {
+            plusObject.addEventListener("click",function(event){
+                let classPlus = plusObject.className.split(" ")[1];
+                let objText = document.querySelector(`#${classPlus}`);
+                objText.textContent = `Количество: ${parseInt(objText.textContent.split(" ")[1]) + 1}`
+        });
+        })
+        listMinusObject.forEach(function(minusObject, id, listMinusObject) {
+            minusObject.addEventListener("click",function(event){
+                let classMinus = minusObject.className.split(" ")[1];
+                let objText = document.querySelector(`#${classMinus}`);
+                objText.textContent = `Количество: ${(parseInt(objText.textContent.split(" ")[1])) - 1}`
+        });
+        })
+
+        listDeleteButton.forEach(function(deleteObject, id, listDeleteButton) {
+            deleteObject.addEventListener("click",function(event){
+                let classDelete = deleteObject.className.split(" ")[1];
+                let objText = document.querySelector(`#${classDelete}`);
+                objText.textContent = "Количество: 0";
+        });
+        })
+
+
+        $(document).ready(function(){
+            $(".del-form-cart").on("submit", function(event){
+                event.preventDefault();
+                textobj = event.currentTarget.querySelector(".count")
+                textobj = parseInt(textobj.textContent.split(" ")[1]);
+                let parentDiv = $(this).closest('div');
+                var formData = $(this).serializeArray();
+                formData.push({name: "count", value: $(this).find(".count").text()});
+                $.ajax({
+                    type: "POST", 
+                    url: $(this).action,
+                    data: formData,
+                    success: function() {
+                        if (textobj == 0){
+                            parentDiv.remove(); 
+                        }
+                    }           
+                });
+            });
+        });
+
+    </script>
+</body>
+</html>
