@@ -8,10 +8,10 @@
 <body>
     <h1>Ваш кошик</h1>
     {% for product in products %}
-        <div>
+        <div class="product">
             <hr>
             <p> {{ product.0.name }}</p>
-            <p>Цена: {{ product.0.price }}</p>
+            <p class="price">Цiна: {{ product.0.price }}</p>
             
             
             <form method="POST" class="del-form-cart" action="{% url 'cart' %}">
@@ -25,6 +25,7 @@
             
         </div>
     {% endfor %}
+    <h1 class="all-price">Загальна цiна: 0</h1>
 
     <script src="https://code.jquery.com/jquery-3.6.4.js" integrity="sha256-a9jBBRygX1Bh5lt8GZjXDzyOB+bWve9EiO7tROUtj/E=" crossorigin="anonymous"></script>
 
@@ -33,11 +34,27 @@
         let listMinusObject = document.querySelectorAll(".minus");
         let listDeleteButton = document.querySelectorAll(".delete")
         
+        function calculatingAmount (){
+            let listDivProduct = document.querySelectorAll(".product");
+            let sumPriceProduct = 0;
+            listDivProduct.forEach(function(divProduct, id, listDivProduct) {
+                let countTextObj = divProduct.querySelector(".count");
+                let priceTextObj = divProduct.querySelector(".price");
+                countTextObj = parseInt(countTextObj.textContent.split(" ")[1]);
+                priceTextObj = parseInt(priceTextObj.textContent.split(" ")[1]);
+                let priceProduct = priceTextObj * countTextObj;
+                sumPriceProduct += priceProduct;
+            })
+            let allPrice = document.querySelector(".all-price");
+            allPrice.textContent = "Загальна цiна: " + String(sumPriceProduct)
+        }
+
         listPlusObject.forEach(function(plusObject, id, listPlusObject) {
             plusObject.addEventListener("click",function(event){
                 let classPlus = plusObject.className.split(" ")[1];
                 let objText = document.querySelector(`#${classPlus}`);
                 objText.textContent = `Количество: ${parseInt(objText.textContent.split(" ")[1]) + 1}`
+                calculatingAmount()
         });
         })
         listMinusObject.forEach(function(minusObject, id, listMinusObject) {
@@ -45,6 +62,7 @@
                 let classMinus = minusObject.className.split(" ")[1];
                 let objText = document.querySelector(`#${classMinus}`);
                 objText.textContent = `Количество: ${(parseInt(objText.textContent.split(" ")[1])) - 1}`
+                calculatingAmount()
         });
         })
 
@@ -53,15 +71,18 @@
                 let classDelete = deleteObject.className.split(" ")[1];
                 let objText = document.querySelector(`#${classDelete}`);
                 objText.textContent = "Количество: 0";
+                calculatingAmount()
         });
         })
 
+        document.addEventListener("DOMContentLoaded",calculatingAmount())
+        
 
         $(document).ready(function(){
             $(".del-form-cart").on("submit", function(event){
                 event.preventDefault();
-                textobj = event.currentTarget.querySelector(".count")
-                textobj = parseInt(textobj.textContent.split(" ")[1]);
+                textObj = event.currentTarget.querySelector(".count")
+                textObj = parseInt(textObj.textContent.split(" ")[1]);
                 let parentDiv = $(this).closest('div');
                 var formData = $(this).serializeArray();
                 formData.push({name: "count", value: $(this).find(".count").text()});
@@ -70,7 +91,7 @@
                     url: $(this).action,
                     data: formData,
                     success: function() {
-                        if (textobj == 0){
+                        if (textObj == 0){
                             parentDiv.remove(); 
                         }
                     }           
