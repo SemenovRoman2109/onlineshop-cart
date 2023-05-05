@@ -1,30 +1,36 @@
+{% load static %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>cart</title>
+    <link rel="stylesheet" href="{% static 'css/cart.css' %}">
 </head>
 <body>
     <h1>Ваш кошик</h1>
-    {% for product in products %}
-        <div class="product">
-            <hr>
-            <p> {{ product.0.name }}</p>
-            <p class="price">Цiна: {{ product.0.price }}</p>
-            
-            
-            <form method="POST" class="del-form-cart" action="{% url 'cart' %}">
-                {% csrf_token %}
-                <p id="{{ product.0.name }}" class="count" >Количество: {{ product.1 }} </p>
-                <button class="plus {{ product.0.name }}">+</button>
-                <button class="minus {{ product.0.name }}">-</button>
-                <input type="hidden" name="product_pk" value="{{ product.0.pk}}">
-                <button class="delete {{ product.0.name }}"> Видалити з кошика</button>
-            </form>
-            
-        </div>
-    {% endfor %}
+    <div class="all-products">
+        {% for product in products %}
+            <div class="product">
+                <p class="name"> {{ product.0.name }}</p>
+                <p class="price">Цiна: {{ product.0.price }}</p>
+
+
+                <form method="POST" class="del-form-cart" action="{% url 'cart' %}">
+                    {% csrf_token %}
+                    <div class="change-count">
+                        <button class="plus {{ product.0.name }}">+</button>
+                        <p id="{{ product.0.name }}" class="count" >Кiлькiсть: {{ product.1 }} </p>
+                        <button class="minus {{ product.0.name }}">-</button>
+                    </div>
+                    <button class="delete {{ product.0.name }}"> Видалити з кошика</button>
+                    <input type="hidden" name="product_pk" value="{{ product.0.pk}}">
+                    
+                </form>
+
+            </div>
+        {% endfor %}
+    </div>
     <h1 class="all-price">Загальна цiна: 0</h1>
 
     <!-- Импортируем jQuery -->
@@ -67,8 +73,8 @@
                 let classPlus = plusObject.className.split(" ")[1];
                 // Создаем переменную в которой храниться обект текста(его мы получили по id который совпадает с класом нашей кнопки)
                 let objText = document.querySelector(`#${classPlus}`);
-                // Заменяем текст етой переменной на `Количество: ` и к старому полученому нами рание количеству добавляем 1 
-                objText.textContent = `Количество: ${parseInt(objText.textContent.split(" ")[1]) + 1}`
+                // Заменяем текст етой переменной на `Кiлькiсть: ` и к старому полученому нами рание количеству добавляем 1 
+                objText.textContent = `Кiлькiсть: ${parseInt(objText.textContent.split(" ")[1]) + 1}`
                 // Вызываем функцию подсчета общей цены
                 calculatingAmount()
         });
@@ -78,7 +84,7 @@
             minusObject.addEventListener("click",function(event){
                 let classMinus = minusObject.className.split(" ")[1];
                 let objText = document.querySelector(`#${classMinus}`);
-                objText.textContent = `Количество: ${(parseInt(objText.textContent.split(" ")[1])) - 1}`
+                objText.textContent = `Кiлькiсть: ${(parseInt(objText.textContent.split(" ")[1])) - 1}`
                 calculatingAmount()
         });
         })
@@ -87,7 +93,7 @@
             deleteObject.addEventListener("click",function(event){
                 let classDelete = deleteObject.className.split(" ")[1];
                 let objText = document.querySelector(`#${classDelete}`);
-                objText.textContent = "Количество: 0";
+                objText.textContent = "Кiлькiсть: 0";
                 calculatingAmount()
         });
         })
@@ -101,7 +107,7 @@
             $(".del-form-cart").on("submit", function(event){
                 // Отменяем действия браузера по умолчанию(отправка формы)
                 event.preventDefault();
-                // В  етой форме ищем параграф с количеством продукта
+                // В  етой форме ищем параграф с Кiлькiстьм продукта
                 textObj = event.currentTarget.querySelector(".count")
                 // Выделяем из него число 
                 textObj = parseInt(textObj.textContent.split(" ")[1]);
@@ -109,7 +115,7 @@
                 let parentDiv = $(this).closest('div');
                 // Подготавливаем данные для отправки
                 let formData = $(this).serializeArray();
-                // Добаляем в данные которые мы будем отправлять количество нашего продукта под ключем count
+                // Добаляем в данные которые мы будем отправлять Кiлькiсть нашего продукта под ключем count
                 formData.push({name: "count", value: $(this).find(".count").text()});
                 // Отправляем ajax запрос
                 $.ajax({
@@ -117,7 +123,7 @@
                     url: $(this).action,
                     data: formData,
                     success: function() {
-                        // Если количество продукта равно 0(он закончился)
+                        // Если Кiлькiсть продукта равно 0(он закончился)
                         if (textObj == 0){
                             // удаляем родительский див
                             parentDiv.remove(); 

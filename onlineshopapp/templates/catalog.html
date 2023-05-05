@@ -1,23 +1,29 @@
+{% load static %}
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <link rel="stylesheet" href="{% static 'css/catalog.css' %}">
 </head>
 <body>
-    {% for product in products %}
-        <form method="post" class="object-add-form" action="{% url 'catalog' %}">
-            {% csrf_token %}
-            <h2>{{ product.name}}</h2>
-            <img src="{{ product.img.url }}" alt="">
-            <p>Цена: {{ product.price }}</p>
-            <p>{{ product.description }}</p>
-            <input type="number" name="count" min="0">
-            <input type="hidden" name="product_pk" value="{{ product.pk}}">
-            <button>Додати до кошику</button>
-        </form>
-    {% endfor %}
+    <h1 class="caption">Усi товари:</h1>
+    <div class="all-products">
+        {% for product in products %}
+            <form method="post" class="object-add-form" action="{% url 'catalog' %}">
+                {% csrf_token %}
+                <p class="title">{{ product.name}}</p>
+                <img src="{{ product.img.url }}" alt="">
+                <p class="price">Цена: {{ product.price }}</p>
+                <!-- <p>{{ product.description }}</p> -->
+                <input class="count" type="number" name="count" min="0">
+                <input type="hidden" name="product_pk" value="{{ product.pk}}">
+                <button>Додати до кошику</button>
+            </form>
+        {% endfor %}
+    </div>
 
     <script src="https://code.jquery.com/jquery-3.6.4.js" integrity="sha256-a9jBBRygX1Bh5lt8GZjXDzyOB+bWve9EiO7tROUtj/E=" crossorigin="anonymous"></script>
     
